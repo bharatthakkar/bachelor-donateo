@@ -102,7 +102,7 @@ public class HomeController {
 		// t.put("ngo_id", 1);
 		// list.execute(t);
 
-		return "Login";
+		return "home";
 	}
 
 	@RequestMapping(value = "/Register", method = RequestMethod.POST)
@@ -462,7 +462,7 @@ public class HomeController {
 		return "User_Profile";
 	}
 
-	@RequestMapping(value = "/listMyCurrentCases", method = RequestMethod.GET)
+	@RequestMapping(value = "/listMyFinishedCases", method = RequestMethod.GET)
 	public String listMyFinishedCases(HttpSession session) {
 
 		Hashtable htblInputParams = new Hashtable();
