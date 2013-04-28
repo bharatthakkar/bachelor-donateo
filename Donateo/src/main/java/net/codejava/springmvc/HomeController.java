@@ -1,15 +1,10 @@
 package net.codejava.springmvc;
 
-import java.lang.reflect.Type;
-import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Iterator;
@@ -102,9 +97,10 @@ public class HomeController {
 		// t.put("ngo_id", 1);
 		// list.execute(t);
 
-		return "home";
+		return "Login";
 	}
 
+	// **************************************SHERINE*******************************************************************************
 	@RequestMapping(value = "/Register", method = RequestMethod.POST)
 	public String register(HttpSession session, Model model,
 			@RequestParam("name") String name,
@@ -286,122 +282,6 @@ public class HomeController {
 		return "Login";
 	}
 
-	@RequestMapping(value = "/newProject", method = RequestMethod.POST)
-	public String newProject(
-			HttpSession session,
-			@RequestParam("name") String name,
-			@RequestParam("description") String description,
-			@RequestParam("location") String location,
-			@RequestParam("severity") String urgency_id,
-			@RequestParam("type") String campaignOrProject,
-			@RequestParam(value = "isDonation", required = false) String isDonation,
-			@RequestParam(value = "isVolunteer", required = false) String isVolunteer,
-			@RequestParam(value = "isObject", required = false) String isObject,
-			@RequestParam(value = "health", required = false) String c_health,
-			@RequestParam(value = "education", required = false) String c_education,
-			@RequestParam(value = "orphans", required = false) String c_orphans,
-			@RequestParam(value = "development", required = false) String c_development,
-			@RequestParam(value = "slums", required = false) String c_slums,
-			@RequestParam(value = "economy", required = false) String c_economy,
-			@RequestParam(value = "deadline", required = false) String deadline,
-			@RequestParam(value = "from", required = false) String from,
-			@RequestParam(value = "to", required = false) String to,
-			@RequestParam(value = "fund", required = false) String amount,
-			@RequestParam(value = "object_name1", required = false) String name1,
-			@RequestParam(value = "object_name2", required = false) String name2,
-			@RequestParam(value = "object_name3", required = false) String name3,
-			@RequestParam(value = "object_name4", required = false) String name4,
-			@RequestParam(value = "object_name5", required = false) String name5,
-			@RequestParam(value = "object_amount1", required = false) String value1,
-			@RequestParam(value = "object_amount2", required = false) String value2,
-			@RequestParam(value = "object_amount3", required = false) String value3,
-			@RequestParam(value = "object_amount4", required = false) String value4,
-			@RequestParam(value = "object_amount5", required = false) String value5) {
-
-		Hashtable<String, Object> project_data = new Hashtable<String, Object>();
-		ArrayList<String> categories = new ArrayList<String>();
-		ArrayList<String> objects = new ArrayList<String>();
-		Object o = session.getAttribute("user");
-		if (o instanceof NGO) {
-			NGO ngo = (NGO) o;
-
-			project_data.put("ngo_id", ngo.getNgo_id() + "");
-			project_data.put("urgency_id", urgency_id);
-			project_data.put("name", name);
-			project_data.put("description", description);
-			project_data.put("location", location);
-			// categories
-			if (c_health != null)
-				categories.add(c_health);
-			if (c_education != null)
-				categories.add(c_education);
-			if (c_orphans != null)
-				categories.add(c_orphans);
-			if (c_development != null)
-				categories.add(c_development);
-			if (c_economy != null)
-				categories.add(c_economy);
-			project_data.put("categories", categories);
-			// types
-			if (isVolunteer != null)
-				project_data.put("isVolunteer", isVolunteer);
-			if (isDonation != null) {
-				project_data.put("isMoney", isDonation);
-				project_data.put("amount", amount);
-			}
-			if (isObject != null) {
-
-				objects.add(name1);
-				objects.add(value1);
-				if (!name2.equals("") && !value2.equals("")) {
-					objects.add(name2);
-					objects.add(value2);
-				}
-				if (!name3.equals("") && !value3.equals("")) {
-					objects.add(name3);
-					objects.add(value3);
-				}
-				if (!name4.equals("") && !value4.equals("")) {
-					objects.add(name4);
-					objects.add(value4);
-				}
-				if (!name5.equals("") && !value5.equals("")) {
-					objects.add(name5);
-					objects.add(value5);
-				}
-
-				project_data.put("isObject", isObject);
-				project_data.put("objects", objects);
-				System.out.println("ARRAY OBJECTS IN CONTROLLER " + objects);
-				System.out.println("size = " + objects.size());
-			}
-
-			Hashtable errorOrSuccess = new Hashtable<String, String>();
-
-			if (campaignOrProject.equals("charity")) { // charity = case
-				project_data.put("deadline", deadline);
-				CreateCaseCmd createCaseCmd = new CreateCaseCmd();
-				errorOrSuccess = createCaseCmd.execute(project_data);
-
-			} else if (campaignOrProject.equals("campaign")) {
-				project_data.put("from", from);
-				project_data.put("to", to);
-				CreateCampaignCmd createCampaignCmd = new CreateCampaignCmd();
-				errorOrSuccess = createCampaignCmd.execute(project_data);
-			}
-			Set set = errorOrSuccess.entrySet();
-			Iterator it = set.iterator();
-			Map.Entry entry = (Map.Entry) it.next();
-			System.out.println(entry.getKey() + " : " + entry.getValue());
-			session.setAttribute("project_creation_message", entry.getValue());
-			if (entry.getKey().equals("success_message"))
-				return "projectData"; // project page
-			else
-				return "newProject"; // redirect to same page
-		}
-		return "projectData";
-	}
-
 	@RequestMapping(value = "/getRecommededProjects", method = RequestMethod.GET)
 	public String getRecommendedProjects(HttpSession session) {
 
@@ -462,7 +342,7 @@ public class HomeController {
 		return "User_Profile";
 	}
 
-	@RequestMapping(value = "/listMyFinishedCases", method = RequestMethod.GET)
+	@RequestMapping(value = "/listMyCurrentCases", method = RequestMethod.GET)
 	public String listMyFinishedCases(HttpSession session) {
 
 		Hashtable htblInputParams = new Hashtable();
@@ -592,7 +472,8 @@ public class HomeController {
 		return "User_Profile";
 	}
 
-	@RequestMapping(value = "/User_Profile", method = RequestMethod.GET)
+	// *************************************OSAMA*************************************************************************************
+	@RequestMapping(value = "/User_Profile#following", method = RequestMethod.GET)
 	public void listFollowingProjects(HttpSession s) {
 		Object o = s.getAttribute("user");
 		if (o instanceof User) {
@@ -603,25 +484,380 @@ public class HomeController {
 			in.put("user_id", new Integer(user.getId()));
 			Hashtable out = listMyFollowedProjectsCmd.execute(in);
 			ArrayList array = (ArrayList) out.get("listMyFinishedCampaigns");
-			s.setAttribute("controller_table", ((Hashtable) s.getAttribute("contoller_table")).put("listMyFollowedProjects", array));
+			s.setAttribute("controller_table", ((Hashtable) s
+					.getAttribute("contoller_table")).put(
+					"listMyFollowedProjects", array));
 			s.setAttribute("listMyFollowingProjects", out);
 			s.setAttribute("messageForMAI", "HAI MAI");
 		}
 
 	}
 
-	// @RequestMapping(value = "/User_Profile", method = RequestMethod.GET)
-	// public void listNGOOnGoingCases(HttpSession s) {
-	// Hashtable ls = new Hashtable();
-	// ListNGOonGoingCasesCmd listogc = new ListNGOonGoingCasesCmd();
-	// Hashtable in = new Hashtable();
-	// int ngo_id = (s.getAttribute("user")).
-	// in.put("ngo_id", ngo_id);
-	// Hashtable result = new Hashtable();
-	//
-	// result = listogc.execute(in);
-	// s.setAttribute("controller_table", result);
-	// // s.setAttribute("messageForMAI", "HAI MAI");
-	//
-	// }
+	// listCampaigns
+	@RequestMapping(value = "/homePage#campaigns", method = RequestMethod.GET)
+	public void listCampaigns(HttpSession s) {
+
+		ListCampaignsCmd campaigns = new ListCampaignsCmd();
+		Hashtable in = new Hashtable();
+		Hashtable out = ListCampaignsCmd.execute(in);
+		ArrayList array = (ArrayList) out.get("listCampaigns");
+		s.setAttribute("controller_table", ((Hashtable) s
+				.getAttribute("contoller_table")).put("listCampaigns", array));
+	}
+
+	// listSuccessStories
+	@RequestMapping(value = "/homePage#successStories", method = RequestMethod.GET)
+	public void listSuccessStories(HttpSession s) {
+
+		listMyFollowedProjectsCmd followedProjects = new listMyFollowedProjectsCmd();
+		Hashtable in = new Hashtable();
+		Hashtable out = listMyFollowedProjectsCmd.execute(in);
+		ArrayList array = (ArrayList) out.get("listCampaigns");
+		s.setAttribute("controller_table", ((Hashtable) s
+				.getAttribute("contoller_table")).put("listCampaigns", array));
+
+	}
+
+	// followproject
+	@RequestMapping(value = "/profilePage#follow", method = RequestMethod.GET)
+	public void followProject(HttpSession s,
+			@RequestParam("project_id") String project_id) {
+
+		Object o = s.getAttribute("user");
+		if (o instanceof User) {
+			User user = (User) o;
+			FollowProjectCmd follow = new FollowProjectCmd();
+			Hashtable in = new Hashtable();
+			in.put("ngo_id", new Integer(user.getId()));
+			in.put("project_id", Integer.parseInt(project_id));
+			Hashtable out = follow.execute(in);
+			ArrayList array = (ArrayList) out.get("followProject");
+			s.setAttribute("controller_table", ((Hashtable) s
+					.getAttribute("contoller_table")).put("followProject",
+					array));
+
+		}
+	}
+
+	// unfollowproject
+	@RequestMapping(value = "/profilePage#unfollow", method = RequestMethod.GET)
+	public void unfollowProject(HttpSession s,
+			@RequestParam("project_id") String project_id) {
+
+		Object o = s.getAttribute("user");
+		if (o instanceof User) {
+			User user = (User) o;
+			UnfollowProjectCmd unfollow = new UnfollowProjectCmd();
+			Hashtable in = new Hashtable();
+			in.put("ngo_id", new Integer(user.getId()));
+			in.put("project_id", Integer.parseInt(project_id));
+			Hashtable out = unfollow.execute(in);
+			ArrayList array = (ArrayList) out.get("unfollowProject");
+			s.setAttribute("controller_table", ((Hashtable) s
+					.getAttribute("contoller_table")).put("unfollowProject",
+					array));
+
+		}
+	}
+
+	@RequestMapping(value = "/projectFiltering", method = RequestMethod.GET)
+	public void unfollowProject(HttpSession s) {
+
+		FilterByTypeAndCategoryCmd filter = new FilterByTypeAndCategoryCmd();
+		Hashtable in = new Hashtable();
+		Hashtable out = listMyFollowedProjectsCmd.execute(in);
+		ArrayList array = (ArrayList) out.get("FilterByTypeAndCategory");
+		s.setAttribute("controller_table", ((Hashtable) s
+				.getAttribute("contoller_table")).put(
+				"FilterByTypeAndCategory", array));
+
+	}
+
+	// **************************************MIRNA************************************************************************************
+
+	@RequestMapping(value = "/newProject", method = RequestMethod.POST)
+	public String newProject(
+			HttpSession session,
+			@RequestParam("name") String name,
+			@RequestParam("description") String description,
+			@RequestParam("location") String location,
+			@RequestParam("severity") String urgency_id,
+			@RequestParam("type") String campaignOrProject,
+			@RequestParam(value = "isDonation", required = false) String isDonation,
+			@RequestParam(value = "isVolunteer", required = false) String isVolunteer,
+			@RequestParam(value = "isObject", required = false) String isObject,
+			@RequestParam(value = "health", required = false) String c_health,
+			@RequestParam(value = "education", required = false) String c_education,
+			@RequestParam(value = "orphans", required = false) String c_orphans,
+			@RequestParam(value = "development", required = false) String c_development,
+			@RequestParam(value = "slums", required = false) String c_slums,
+			@RequestParam(value = "economy", required = false) String c_economy,
+			@RequestParam(value = "deadline", required = false) String deadline,
+			@RequestParam(value = "from", required = false) String from,
+			@RequestParam(value = "to", required = false) String to,
+			@RequestParam(value = "fund", required = false) String amount,
+			@RequestParam(value = "object_name1", required = false) String name1,
+			@RequestParam(value = "object_name2", required = false) String name2,
+			@RequestParam(value = "object_name3", required = false) String name3,
+			@RequestParam(value = "object_name4", required = false) String name4,
+			@RequestParam(value = "object_name5", required = false) String name5,
+			@RequestParam(value = "object_amount1", required = false) String value1,
+			@RequestParam(value = "object_amount2", required = false) String value2,
+			@RequestParam(value = "object_amount3", required = false) String value3,
+			@RequestParam(value = "object_amount4", required = false) String value4,
+			@RequestParam(value = "object_amount5", required = false) String value5) {
+
+		Hashtable<String, Object> project_data = new Hashtable<String, Object>();
+		ArrayList<String> categories = new ArrayList<String>();
+		ArrayList<String> objects = new ArrayList<String>();
+		Object o = session.getAttribute("user");
+		if (o instanceof NGO) {
+			NGO ngo = (NGO) o;
+
+			project_data.put("ngo_id", ngo.getNgo_id() + "");
+			project_data.put("urgency_id", urgency_id);
+			project_data.put("name", name);
+			project_data.put("description", description);
+			project_data.put("location", location);
+			// categories
+			if (c_health != null)
+				categories.add(c_health);
+			if (c_education != null)
+				categories.add(c_education);
+			if (c_orphans != null)
+				categories.add(c_orphans);
+			if (c_development != null)
+				categories.add(c_development);
+			if (c_economy != null)
+				categories.add(c_economy);
+			project_data.put("categories", categories);
+			// types
+			if (isVolunteer != null)
+				project_data.put("isVolunteer", isVolunteer);
+			if (isDonation != null) {
+				project_data.put("isMoney", isDonation);
+				project_data.put("amount", amount);
+			}
+			if (isObject != null) {
+
+				objects.add(name1);
+				objects.add(value1);
+				if (!name2.equals("") && !value2.equals("")) {
+					objects.add(name2);
+					objects.add(value2);
+				}
+				if (!name3.equals("") && !value3.equals("")) {
+					objects.add(name3);
+					objects.add(value3);
+				}
+				if (!name4.equals("") && !value4.equals("")) {
+					objects.add(name4);
+					objects.add(value4);
+				}
+				if (!name5.equals("") && !value5.equals("")) {
+					objects.add(name5);
+					objects.add(value5);
+				}
+
+				project_data.put("isObject", isObject);
+				project_data.put("objects", objects);
+				System.out.println("ARRAY OBJECTS IN CONTROLLER " + objects);
+				System.out.println("size = " + objects.size());
+			}
+
+			Hashtable errorOrSuccess = new Hashtable<String, String>();
+
+			if (campaignOrProject.equals("charity")) { // charity = case
+				project_data.put("deadline", deadline);
+				CreateCaseCmd createCaseCmd = new CreateCaseCmd();
+				errorOrSuccess = createCaseCmd.execute(project_data);
+
+			} else if (campaignOrProject.equals("campaign")) {
+				project_data.put("from", from);
+				project_data.put("to", to);
+				CreateCampaignCmd createCampaignCmd = new CreateCampaignCmd();
+				errorOrSuccess = createCampaignCmd.execute(project_data);
+			}
+			Set set = errorOrSuccess.entrySet();
+			Iterator it = set.iterator();
+			Map.Entry entry = (Map.Entry) it.next();
+			System.out.println(entry.getKey() + " : " + entry.getValue());
+			session.setAttribute("project_creation_message", entry.getValue());
+			if (entry.getKey().equals("success_message"))
+				return "projectData"; // project page
+			else
+				return "newProject"; // redirect to same page
+		}
+		return "projectData";
+	}
+
+	@RequestMapping(value = "/NGO_Profile#onGoingCases", method = RequestMethod.GET)
+	public void listNGOOnGoingCases(HttpSession session)
+
+	{
+		Object user = session.getAttribute("user");
+		if (user instanceof NGO) {
+			NGO ngo = (NGO) user;
+			ListNGOonGoingCasesCmd onGoingCasesCmd = new ListNGOonGoingCasesCmd();
+			Hashtable input = new Hashtable();
+			input.put("ngo_id", ngo.getNgo_id());
+
+			Hashtable result = onGoingCasesCmd.execute(input);
+			ArrayList array = (ArrayList) result.get("listNGOOnGoingCases");
+			session.setAttribute("controller_table", ((Hashtable) session
+					.getAttribute("contoller_table")).put(
+					"listNGOOnGoingCases", array));
+		}
+	}
+
+	@RequestMapping(value = "/NGO_Profile#currentCases", method = RequestMethod.GET)
+	public void listNGOCurrentCases(HttpSession session)
+
+	{
+		Object user = session.getAttribute("user");
+		if (user instanceof NGO) {
+			NGO ngo = (NGO) user;
+			ListNGOcurrentCasesCmd currentCasesCmd = new ListNGOcurrentCasesCmd();
+
+			Hashtable input = new Hashtable();
+			input.put("ngo_id", ngo.getNgo_id());
+
+			Hashtable result = currentCasesCmd.execute(input);
+			ArrayList array = (ArrayList) result.get("listNGOcurrentCases");
+			session.setAttribute("controller_table", ((Hashtable) session
+					.getAttribute("contoller_table")).put(
+					"listNGOcurrentCases", array));
+			// s.setAttribute("messageForMAI", "HAI MAI");
+
+		}
+	}
+
+	// ListNGOcurrentCampaigns
+	@RequestMapping(value = "/NGO_Profile#currentCampaigns", method = RequestMethod.GET)
+	public void listNGOCurrentCampaigns(HttpSession session)
+
+	{
+		Object user = session.getAttribute("user");
+		if (user instanceof NGO) {
+			NGO ngo = (NGO) user;
+			ListNGOcurrentCampaignsCmd listNGOCurrentCampaigns = new ListNGOcurrentCampaignsCmd();
+			Hashtable input = new Hashtable();
+			input.put("ngo_id", ngo.getNgo_id());
+
+			Hashtable result = listNGOCurrentCampaigns.execute(input);
+			ArrayList array = (ArrayList) result.get("listNGOCurrentCampaigns");
+			session.setAttribute("controller_table", ((Hashtable) session
+					.getAttribute("contoller_table")).put(
+					"listNGOCurrentCampaigns", array));
+
+		}
+	}
+
+	// ListNGOonGoingCampaigns
+	@RequestMapping(value = "/NGO_Profile#ongoingCases", method = RequestMethod.GET)
+	public void listNGOonGoingCampaigns(HttpSession session)
+
+	{
+		Object user = session.getAttribute("user");
+		if (user instanceof NGO) {
+			NGO ngo = (NGO) user;
+			ListNGOonGoingCampaignsCmd listOnGoingCampaigns = new ListNGOonGoingCampaignsCmd();
+			Hashtable input = new Hashtable();
+			input.put("ngo_id", ngo.getNgo_id());
+
+			Hashtable result = listOnGoingCampaigns.execute(input);
+			ArrayList array = (ArrayList) result.get("listOnGoingCampaigns");
+			session.setAttribute("controller_table", ((Hashtable) session
+					.getAttribute("contoller_table")).put(
+					"listOnGoingCampaigns", array));
+
+		}
+	}
+
+	// ListNGOcurrentCFcases
+	@RequestMapping(value = "/NGO_Profile#currentCF", method = RequestMethod.GET)
+	public void listNGOcurrentCF(HttpSession session)
+
+	{
+		Object user = session.getAttribute("user");
+		if (user instanceof NGO) {
+			NGO ngo = (NGO) user;
+			ListNGOcurrentCFcasesCmd listNGOCurrentCfcases = new ListNGOcurrentCFcasesCmd();
+			Hashtable input = new Hashtable();
+			input.put("ngo_id", ngo.getNgo_id());
+
+			Hashtable result = listNGOCurrentCfcases.execute(input);
+			ArrayList array = (ArrayList) result.get("listNGOcurrentCfcases");
+			session.setAttribute("controller_table", ((Hashtable) session
+					.getAttribute("contoller_table")).put(
+					"listNGOcurrentCfcases", array));
+
+		}
+	}
+
+	// ListNGOonGoingCrowdFundings
+	@RequestMapping(value = "/NGO_Profile#currentCF", method = RequestMethod.GET)
+	public void listNGOonGoingCF(HttpSession session)
+
+	{
+		Object user = session.getAttribute("user");
+		if (user instanceof NGO) {
+			NGO ngo = (NGO) user;
+			ListNGOonGoingCrowdFundingsCmd listNGOonGoingCF = new ListNGOonGoingCrowdFundingsCmd();
+			Hashtable input = new Hashtable();
+			input.put("ngo_id", ngo.getNgo_id());
+
+			Hashtable result = listNGOonGoingCF.execute(input);
+			ArrayList array = (ArrayList) result
+					.get("listNGOonGoingCrowdFundings");
+			session.setAttribute("controller_table", ((Hashtable) session
+					.getAttribute("contoller_table")).put(
+					"listNGOonGoingCrowdFundings", array));
+
+		}
+	}
+
+	// ListNGOnotifications
+	@RequestMapping(value = "/notifications", method = RequestMethod.GET)
+	public void listNotifications(HttpSession session)
+
+	{
+		Object user = session.getAttribute("user");
+		if (user instanceof NGO) {
+			NGO ngo = (NGO) user;
+			ListNGONotificationsCmd listNotifications = new ListNGONotificationsCmd();
+			Hashtable input = new Hashtable();
+			input.put("ngo_id", ngo.getNgo_id());
+
+			Hashtable result = listNotifications.execute(input);
+			ArrayList array = (ArrayList) result.get("listNGOnotifications");
+			session.setAttribute("controller_table", ((Hashtable) session
+					.getAttribute("contoller_table")).put(
+					"listNGOnotifications", array));
+
+		} else if (user instanceof User) {
+			// CALL USERNOTIFICATIONS
+		}
+	}
+
+	// ListSuggestedProjects
+	@RequestMapping(value = "/ngoProfile#suggestions", method = RequestMethod.GET)
+	public void listSuggestedProjects(HttpSession session)
+
+	{
+		Object user = session.getAttribute("user");
+		if (user instanceof NGO) {
+			NGO ngo = (NGO) user;
+			ListSuggestedProjectsCmd listSuggestedProjects = new ListSuggestedProjectsCmd();
+			Hashtable input = new Hashtable();
+			input.put("ngo_id", ngo.getNgo_id());
+
+			Hashtable result = listSuggestedProjects.execute(input);
+			ArrayList array = (ArrayList) result.get("listSuggestedProjects");
+			session.setAttribute("controller_table", ((Hashtable) session
+					.getAttribute("contoller_table")).put(
+					"listSuggestedProjects", array));
+
+		}
+	}
 }
