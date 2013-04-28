@@ -1,0 +1,61 @@
+
+ {
+  /* A universal CSS reset */
+  margin:20px;
+  padding:0;
+  left:0px;
+
+ 
+  }
+  
+er: 1px solid red;
+}
+
+#LeftCol
+{
+    /* Move it to the left */
+    float: left;
+
+    width: 200px;
+    text-align: center;
+
+    /* Move it away from the content */
+    margin-right: 20px;
+
+/* For visibility. Delete me */
+border: 1px solid brown;
+}
+
+#Photo
+{
+    /* Width and height of photo container */
+    width: 200px;
+    height: 200px;
+
+/* For visibility. Delete me */
+border: 1px solid green;
+}
+
+  
+  body{
+font-size:14px;
+
+color:#fff;
+
+
+
+backgroundColor: "#aa0000",
+
+
+/*hena al alwan men fo2 l ta7t ! */
+
+/* CSS3 Radial Gradients */
+background-image:-moz-radial-gradient(center-100px45deg,circlefarthest-corner,#444150px,#111300px);
+background-image:-webkit-gradient(radial,50%0,150,50%0,300,from(#ffff),to(#C0C0C0));
+
+font-family:Arial,Helvetica,sans-serif;
+}
+  #tabs{
+    margin-top: 100px; 
+   
+  }
