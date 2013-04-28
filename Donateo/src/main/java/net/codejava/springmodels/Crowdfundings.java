@@ -11,7 +11,8 @@ public class Crowdfundings extends Projects {
 			boolean completed, boolean volunteer, boolean donate_money,
 			boolean donate_object, int collected_amount, int amount,
 			int urgency_id, boolean verified) {
-		super(project_id, ngo_id, project_name, description, deadline, start_date, done, volunteer, donate_money, donate_object, collected_amount, amount, urgency_id);
+		super();
+		//super(project_id, ngo_id, project_name, description, deadline, start_date, done, volunteer, donate_money, donate_object, collected_amount, amount, urgency_id);
 		super.setProject_id(project_id);
 		super.setNgo_id(ngo_id);
 		super.setProject_name(project_name);
