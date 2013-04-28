@@ -342,7 +342,7 @@ public class HomeController {
 		return "User_Profile";
 	}
 
-	@RequestMapping(value = "/listMyCurrentCases", method = RequestMethod.GET)
+	@RequestMapping(value = "/listMyFinishedCases", method = RequestMethod.GET)
 	public String listMyFinishedCases(HttpSession session) {
 
 		Hashtable htblInputParams = new Hashtable();
@@ -796,7 +796,7 @@ public class HomeController {
 	}
 
 	// ListNGOonGoingCrowdFundings
-	@RequestMapping(value = "/NGO_Profile#currentCF", method = RequestMethod.GET)
+	@RequestMapping(value = "/NGO_Profile#ongoingCF", method = RequestMethod.GET)
 	public void listNGOonGoingCF(HttpSession session)
 
 	{
