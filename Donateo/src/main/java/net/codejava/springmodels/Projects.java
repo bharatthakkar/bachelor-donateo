@@ -1,9 +1,8 @@
 package net.codejava.springmodels;
 
-import java.util.ArrayList;
 import java.util.Date;
 
-public  class  Projects {
+public class Projects {
 
 	private int project_id;
 	private int ngo_id;
@@ -21,13 +20,14 @@ public  class  Projects {
 	private int amount;
 	private int urgency_id; // --> id corresponds to the value of severity.
 							// ranges from 1 to 2
-//	private ArrayList<String> objects;
-//	private ArrayList<String> categories;
+						
+
 
 	public Projects(int project_id, int ngo_id, String project_name,
 			String description, Date deadline, Date start_date, boolean done,
-			boolean volunteer, boolean donate_money, boolean donate_object,
-			int collected_amount, int amount, int urgency_id) {
+			boolean completed, boolean volunteer, boolean donate_money,
+			boolean donate_object, int collected_amount, int amount,
+			int urgency_id) {
 
 		this.project_id = project_id;
 		this.ngo_id = ngo_id;
@@ -42,10 +42,11 @@ public  class  Projects {
 		this.collected_amount = collected_amount;
 		this.amount = amount;
 		this.urgency_id = urgency_id;
-		
-//		this.objects = objects;
-//		this.categories = categories;
-		
+
+	}
+
+	public Projects() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public int getProject_id() {
@@ -167,7 +168,13 @@ public  class  Projects {
 	public void setCompleted(boolean completed) {
 		this.completed = completed;
 	}
-
 	
+public String toString(){
+		
+		String s = "Project name: "+ this.getProject_name() + " ,Project_id: " + this.getProject_id();
+		return s;
+		
+	
+	}
 
 }
