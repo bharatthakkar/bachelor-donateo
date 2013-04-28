@@ -66,7 +66,7 @@ public class GetUrgentProjectsCmd implements Command {
 						// create a project object
 						Projects p = new Projects(project_id, ngo_id,
 								project_name, description, deadline,
-								start_date, done, volunteer, donate_money,
+								start_date, done,completed, volunteer, donate_money,
 								donate_object, collected_amount, amount,
 								urgency_id);
 

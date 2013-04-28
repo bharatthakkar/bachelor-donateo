@@ -89,7 +89,7 @@ public class GetRecommendedProjectsCmd implements Command {
 //							}
 							
 							//create a project object
-							Projects p = new Projects(project_id, ngo_id, project_name, description, deadline, start_date, done, volunteer, donate_money, donate_object, collected_amount, amount, urgency_id);
+							Projects p = new Projects(project_id, ngo_id, project_name, description, deadline, start_date, done,completed,  volunteer, donate_money, donate_object, collected_amount, amount, urgency_id);
 //							if (num_attending_members == -1) {
 //								//this is not a campaign
 //								if (isCrowdfunding) {
