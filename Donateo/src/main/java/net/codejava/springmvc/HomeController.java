@@ -1,5 +1,9 @@
 package net.codejava.springmvc;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -10,12 +14,19 @@ import java.util.Locale;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.FileHandler;
 
 import javax.servlet.http.HttpSession;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import net.codejava.springmodels.Admins;
 import net.codejava.springmodels.NGO;
 import net.codejava.springmodels.User;
+import net.codejava.springxml.registerRequest.UserXML;
+import net.codejava.springxml.registerResponse.Message;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +97,7 @@ public class HomeController {
 		model.addAttribute("serverTime", formatteddate);
 		Hashtable<String, Object> controller_table = new Hashtable<String, Object>();
 		session.setAttribute("controller_table", controller_table);
+		
 
 		// User user = new User(1, "Sherine", "ddssd", "sdsdsds", "sddsdsds",
 		// "dsdssdsd");
@@ -169,9 +181,10 @@ public class HomeController {
 			@RequestParam("email") String email,
 			@RequestParam("password") String password) {
 
-		Hashtable<String, String> user_parameters = new Hashtable<String, String>();
+		Hashtable user_parameters = new Hashtable();
 		user_parameters.put("email", email);
 		user_parameters.put("password", password);
+		user_parameters.put("pool", this.pool);
 
 		// System.out.println(email + "      " + password);
 
@@ -471,6 +484,111 @@ public class HomeController {
 		}
 		return "User_Profile";
 	}
+	
+	//************XML***********
+	
+	@RequestMapping(value = "/xRegister")
+	public String xRegister(HttpSession session, Model model,
+	@RequestParam("user") String xml) {
+	// create a JAXBContext capable of handling classes generated into
+	// the itemListAPI package
+		 try {
+			 
+				//File request = new File("/Users/sherinehanna/Documents/workspace-orange/Donateo/registerRequest.xml");
+			 	//FileUtils.writeStringToFile(new File ("registerRequest.xml"), xml);
+				
+				//
+		        FileWriter fileWriter = null;
+		        File request = null;
+		        try {
+		            //String content = "Hello! Java-Buddy :)";
+		            request = new File("registerRequest2.xml");
+		            fileWriter = new FileWriter(request);
+		            fileWriter.write(xml);
+		            fileWriter.close();
+		        } catch (IOException ex) {
+		        	System.out.println("here");
+		            //Logger.getLogger(WriteStringToFile.class.getName()).log(Level.SEVERE, null, ex);
+		        } finally {
+		            try {
+		                fileWriter.close();
+		            } catch (IOException ex) {
+		            	System.out.println("here2");
+		                //Logger.getLogger(WriteStringToFile.class.getName()).log(Level.SEVERE, null, ex);
+		            }
+		        }
+		        
+		    
+			 //
+				JAXBContext jaxbContext = JAXBContext.newInstance(UserXML.class);
+		 
+				Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+				System.out.println(xml);
+				UserXML user_xml = (UserXML) jaxbUnmarshaller.unmarshal(request);
+				System.out.println(user_xml.getFirstName());
+				
+			 	String first_name =  user_xml.getFirstName();
+				String last_name = user_xml.getLastName();
+				String email = user_xml.getEmail();
+				String password = user_xml.getPassword();
+				String phone = user_xml.getPhone();
+				String address = user_xml.getAddress();
+				
+				// call command
+
+				Hashtable user_parameters = new Hashtable();
+				user_parameters.put("name", first_name);
+				user_parameters.put("email", email);
+				user_parameters.put("password", password);
+				user_parameters.put("address", address);
+				user_parameters.put("phone", phone);
+				
+				RegisterCmd registerCmd = new RegisterCmd();
+				Hashtable htblOutputParams = registerCmd.execute(user_parameters);
+				
+				//creating the output xml
+				Message message = new Message();
+				String success_message = (String)htblOutputParams.get("success_message");
+				if (success_message.equals("YOU HAVE SUCCESSFULLY REGISTERED")) {
+					message.setBasicMessage((String)htblOutputParams.get("success_message"));
+					message.setFnMessage(first_name);
+					message.setEmlMessage(email);
+					message.setPswdMessage(password);
+					message.setPhnMessage(phone);
+					message.setAdrsMessage(address);
+				}
+				else {
+					//the user haven't registered
+					message.setBasicMessage((String)htblOutputParams.get("success_message"));
+					message.setFnMessage("");
+					message.setEmlMessage("");
+					message.setPswdMessage("");
+					message.setPhnMessage("");
+					message.setAdrsMessage("");
+				}
+				
+				
+				File response = new File("/Users/sherinehanna/Documents/workspace-orange/Donateo/registerResponse.xml");
+				JAXBContext jaxbContext2 = JAXBContext.newInstance(Message.class);
+				Marshaller jaxbMarshaller = jaxbContext2.createMarshaller();
+		 
+				// output pretty printed
+				jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		 
+				jaxbMarshaller.marshal(message, response);
+				jaxbMarshaller.marshal(message, System.out);
+				
+				request.delete();
+		 
+			  } catch (JAXBException e) {
+				e.printStackTrace();
+			  }
+		 
+
+			
+	return "home";
+	}
+	//********END XML***********
 
 	// *************************************OSAMA*************************************************************************************
 	@RequestMapping(value = "/User_Profile#following", method = RequestMethod.GET)
@@ -483,10 +601,13 @@ public class HomeController {
 			Hashtable<String, Integer> in = new Hashtable<String, Integer>();
 			in.put("user_id", new Integer(user.getId()));
 			Hashtable out = listMyFollowedProjectsCmd.execute(in);
-			ArrayList array = (ArrayList) out.get("listMyFinishedCampaigns");
-			s.setAttribute("controller_table", ((Hashtable) s
-					.getAttribute("contoller_table")).put(
-					"listMyFollowedProjects", array));
+			ArrayList array = (ArrayList) out.get("listMyFollowedProjects");
+//			s.setAttribute("controller_table", ((Hashtable) s
+//					.getAttribute("contoller_table")).put(
+//					"listMyFollowedProjects", array));
+			Hashtable temp_table = (Hashtable) s.getAttribute("contoller_table");
+			temp_table.put("listMyFollowedProjects", array);
+			s.setAttribute("controller_table", temp_table);
 			s.setAttribute("listMyFollowingProjects", out);
 			s.setAttribute("messageForMAI", "HAI MAI");
 		}
