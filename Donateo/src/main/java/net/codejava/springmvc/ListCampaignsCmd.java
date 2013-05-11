@@ -13,7 +13,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.thoughtworks.xstream.XStream;
+
 import net.codejava.springmodels.Campaign;
+import net.codejava.springmodels.ListOfProjects;
+import net.codejava.springmodels.Projects;
 
 
 public class ListCampaignsCmd {
@@ -25,31 +29,31 @@ public class ListCampaignsCmd {
 				conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/DonationCrowdfundingProject",
 						"orange", "");
 			
-			/*Set set = table.entrySet();
+			Set set = table.entrySet();
 			Iterator it = set.iterator();
-			int user_id;
+			int counter;
 			Map.Entry entry = (Map.Entry) it.next();
-			user_id =  (Integer)entry.getValue();*/
+			counter =  (Integer)entry.getValue();
 			CallableStatement listCampaigns = conn.prepareCall("{call listCampaigns(?)}");
 			listCampaigns.registerOutParameter(1, Types.VARCHAR);
 			boolean hadResults = listCampaigns.execute();
 			Hashtable<String , Object> out = new Hashtable<String , Object>();
 			ResultSet rs = null;
+			ListOfProjects list = new ListOfProjects();
 			//System.out.println("1");
 			String output = "";
 			output = listCampaigns.getString("output_msg");
 			System.out.println("output " + output);
 			ArrayList<Campaign> listOfCampaigns = new ArrayList<Campaign>();
 			if(output != null){ 
-				out.put("error", "");
+				out.put("listCampaigns", "<error>"+output+"</error>");
 				System.out.println("output 2 " +output);
-				out.put("listCampaigns" , listOfCampaigns);
 				return out;
 			}
 				
-				while(hadResults){
+				if(hadResults){
 					  rs = listCampaigns.getResultSet();
-					  if(rs.next()){
+					  while(rs.next()){
 						  Campaign campaign = new Campaign(rs.getInt("project_id"), rs.getInt("ngo_id"), rs.getString("project_name"),
 									rs.getString("description"), rs.getDate("deadline"), rs.getDate("start_date"),  rs.getBoolean("done"),rs.getBoolean("completed"),
 									rs.getBoolean("volunteer"), rs.getBoolean("donate_money"), rs.getBoolean("donate_object"),
@@ -62,8 +66,30 @@ public class ListCampaignsCmd {
 				  hadResults = listCampaigns.getMoreResults();
 				}
 					
-			out.put("listCampaigns", listOfCampaigns);
-			out.put("error" , "");
+				int size = listOfCampaigns.size();
+				int upperlimit = (counter*5) - 1;
+				int lowerlimit = upperlimit-4;
+				if(lowerlimit>size){
+					out.put("listCampaigns", "<error>There are no more campaigns</error>");
+					System.out.println("<error>There are no more campaigns</error>");
+					return out;
+				}
+				if((upperlimit+1)>size){
+					for(int i = lowerlimit; i<size; i++){
+						list.addProject(listOfCampaigns.get(i));
+					}
+				}
+				else{
+					for(int i = lowerlimit;i<=upperlimit; i++){
+						list.addProject(listOfCampaigns.get(i));
+					}
+				}
+				XStream xstream = new XStream();
+		        xstream.alias("listOfProjects", ListOfProjects.class);
+		        xstream.alias("campaign", Campaign.class);
+		        String s = xstream.toXML(list);
+		        System.out.println(s);
+				out.put("listCampaigns", s);
 			return out;
 			//System.out.println("2");
 			
@@ -94,6 +120,16 @@ public class ListCampaignsCmd {
 
 					return table;
 }
+	public static void main(String[] args) {
+		Hashtable listcampaigns = new Hashtable();
+		int counter = 2;
+		ListCampaignsCmd listmyprojects = new ListCampaignsCmd();
+		Hashtable<String, Integer> in = new Hashtable<String, Integer>();
+		in.put("counter", counter);
+		listcampaigns = listmyprojects.execute(in);
+
+	}
+
 	
 
 }
