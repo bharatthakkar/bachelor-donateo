@@ -16,6 +16,9 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpSession;
 
+import com.thoughtworks.xstream.XStream;
+
+import net.codejava.springmodels.ListOfProjects;
 import net.codejava.springmodels.Projects;
 
 public class listMyFollowedProjectsCmd {
@@ -31,9 +34,17 @@ public class listMyFollowedProjectsCmd {
 
 				Set set = table.entrySet();
 				Iterator it = set.iterator();
-				int user_id;
-				Map.Entry entry = (Map.Entry) it.next();
-				user_id = (Integer) entry.getValue();
+				int user_id = 0;
+				int counter = 0;
+				while(it.hasNext()){
+					Map.Entry entry = (Map.Entry) it.next();
+					if(entry.getKey().equals("user_id")){
+						user_id = (Integer)entry.getValue();
+					}
+					else if(entry.getKey().equals("counter")){
+						counter = (Integer) entry.getValue();
+					}
+				}				
 				CallableStatement listfollowedprojects = conn
 						.prepareCall("{call listFollowedProjects(? , ?)}");
 				listfollowedprojects.registerOutParameter(2, Types.VARCHAR);
@@ -42,14 +53,15 @@ public class listMyFollowedProjectsCmd {
 				System.out.println("procedure executed");
 				Hashtable<String, Object> out = new Hashtable<String, Object>();
 				ResultSet rs = null;
+				ArrayList<Projects> followed = new ArrayList<Projects>();
 				// System.out.println("1");
 				String output = "";
 				output = listfollowedprojects.getString(2);
-				ArrayList<Projects> projects = new ArrayList<Projects>();
+				ListOfProjects list = new ListOfProjects();
 				if (output != null) {
 
-					out.put("error", output);
-					out.put("listMyFollowedProjects", projects);
+					
+					out.put("listMyFollowedProjects", "<error>"+output+"</error>");
 					System.out.println(output);
 					return out;
 				}
@@ -57,7 +69,7 @@ public class listMyFollowedProjectsCmd {
 				if (hadResults) {
 					rs = listfollowedprojects.getResultSet();
 					while (rs.next()) {
-						projects.add(new Projects(rs.getInt("project_id"), rs
+						followed.add(new Projects(rs.getInt("project_id"), rs
 								.getInt("ngo_id"),
 								rs.getString("project_name"), rs
 										.getString("description"), rs
@@ -71,13 +83,35 @@ public class listMyFollowedProjectsCmd {
 										.getInt("collected_amount"), rs
 										.getInt("amount"), rs
 										.getInt("urgency_id")));
-						System.out.println(rs.getInt("project_id"));
-						System.out.println(rs.getString("project_name"));
+						//System.out.println(rs.getInt("project_id"));
+						//System.out.println(rs.getString("project_name"));
 					}
 					hadResults = listfollowedprojects.getMoreResults();
 				}
-				out.put("listMyFollowedProjects", projects);
-				out.put("error", "");
+				int size = followed.size();
+				int upperlimit = (counter*5) - 1;
+				int lowerlimit = upperlimit-4;
+				if(lowerlimit>size){
+					out.put("listMyFollowedProjects", "<error>There are no more projects</error>");
+					System.out.println("There are no more projects");
+					return out;
+				}
+				if((upperlimit+1)>size){
+					for(int i = lowerlimit; i<size; i++){
+						list.addProject(followed.get(i));
+					}
+				}
+				else{
+					for(int i = lowerlimit;i<=upperlimit; i++){
+						list.addProject(followed.get(i));
+					}
+				}
+				XStream xstream = new XStream();
+		        xstream.alias("listOfProjects", ListOfProjects.class);
+		        xstream.alias("project", Projects.class);
+		        String s = xstream.toXML(list);
+		        System.out.println(s);
+				out.put("listMyFollowedProjects", s);
 				return out;
 				// System.out.println("2");
 
@@ -109,9 +143,11 @@ public class listMyFollowedProjectsCmd {
 	public static void main(String[] args) {
 		Hashtable listMyFollowingProjects = new Hashtable();
 		int user_id = 1;
+		int counter = 2;
 		listMyFollowedProjectsCmd listmyprojects = new listMyFollowedProjectsCmd();
 		Hashtable<String, Integer> in = new Hashtable<String, Integer>();
 		in.put("user_id", user_id);
+		in.put("counter", counter);
 		listMyFollowingProjects = listmyprojects.execute(in);
 
 	}
